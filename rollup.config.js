@@ -3,7 +3,11 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
+import sveltePreprocess from "svelte-preprocess";
 import css from 'rollup-plugin-css-only';
+import dotenv from 'dotenv';
+
+dotenv.config()
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -41,7 +45,18 @@ export default {
 			compilerOptions: {
 				// enable run-time checks when not in production
 				dev: !production
-			}
+			},
+			preprocess: sveltePreprocess({
+        sourceMap: !production,
+        postcss: true,
+				replace:[
+					['BASE_URL', JSON.stringify(process.env.BASE_URL)],
+					['AW_AWS_REGION', JSON.stringify(process.env.AW_AWS_REGION)],
+					['AW_AWS_ACCESS_KEY_ID', JSON.stringify(process.env.AW_AWS_ACCESS_KEY_ID)],
+					['AW_AWS_SECRET_ACCESS_KEY', JSON.stringify(process.env.AW_AWS_SECRET_ACCESS_KEY)],
+					['AW_AWS_STORAGE_BUCKET_NAME', JSON.stringify(process.env.AW_AWS_STORAGE_BUCKET_NAME)]
+				]
+      }),
 		}),
 		// we'll extract any component CSS out into
 		// a separate file - better for performance

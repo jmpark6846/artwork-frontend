@@ -2,12 +2,10 @@ import axios from "axios";
 import { navigate } from "svelte-navigator";
 import { get } from "svelte/store";
 import { user } from "../store";
-import { READONLY_NOTI } from "./common";
 
 const api = axios.create({
   headers:{ 'Content-Type': 'application/json'},
   withCredentials: true,
-  
 })
 
 let isTokenRefreshing = false;
@@ -17,12 +15,11 @@ let refreshQueue = [];
 api.interceptors.response.use(response=>response, async error=> {
   const { response, config } = error
   const origianlRequest = config
-
-  if(response.status === 403){
-    if(get(user).is_readonly){
-      appNoti.update(v=>[ ...v, READONLY_NOTI])
-    }
+  if(!response){
+    console.error('SERVER ERROR');
+    return;
   }
+
   if(response.status === 401){    
     if(response.data.code === "token_not_valid"){
       return api.post('accounts/logout/')
